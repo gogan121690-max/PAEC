@@ -587,21 +587,39 @@
       <button class="btn btn-primary btn-block" onclick="finalizarEncuesta()">Finalizar encuesta ✓</button>
     </div>
     
-    <!-- PASO 3: CÓDIGO Y GRÁFICAS PERSONALES (SIN COMPROBANTE) -->
+    <!-- PASO 3: COMPROBANTE, CÓDIGO Y GRÁFICAS PERSONALES -->
     <div id="paso-resultados" style="display:none;">
       
       <div class="alert alert-success">
-        <strong>✅ ¡Encuesta completada!</strong> Ahora copia tu código y pégalo en la sección <strong>Gráfica Grupal</strong>. Una vez registrado, podrás descargar tu comprobante de participación.
+        <strong>✅ ¡Encuesta completada!</strong> Descarga tu comprobante, copia tu código y entrégaselo a tu profesor.
       </div>
       
-      <h3 style="color: var(--primary); margin-top: 20px;">🔐 Tu código personal:</h3>
+      <!-- COMPROBANTE -->
+      <div id="comprobante" class="comprobante">
+        <h2>Comprobante de Participación</h2>
+        <div class="comprobante-subtitle">Encuesta de Convivencia Familiar y Valores</div>
+        <div class="comprobante-data">
+          <div><strong>Estudiante:</strong> <span id="c-nombre"></span></div>
+          <div><strong>Grupo:</strong> <span id="c-grupo"></span></div>
+          <div><strong>Fecha:</strong> <span id="c-fecha"></span></div>
+          <div><strong>Estado:</strong> <span style="color: var(--success); font-weight: bold;">✓ Completada</span></div>
+        </div>
+        <p style="font-size: 0.85em; color: var(--text-light); margin-top: 10px;">
+          Pensamiento Matemático · Proyecto Comunitario · Ciclo 2025-2026
+        </p>
+      </div>
+      
+      <div class="btn-row">
+        <button class="btn btn-accent btn-block" onclick="descargarComprobante()">📥 Descargar comprobante (PNG)</button>
+      </div>
+      
+      <h3 style="color: var(--primary); margin-top: 30px;">🔐 Tu código personal:</h3>
       <p style="color: var(--text-light); margin-bottom: 10px; font-size: 0.9em;">
-        Copia este código y pégalo en la sección <strong>Gráfica Grupal</strong> para que tus respuestas se sumen al análisis del grupo.
+        Copia este código y entrégaselo a tu profesor. Él lo agregará al análisis grupal junto con los códigos de tus compañeros.
       </p>
       <div class="codigo-box" id="codigo-generado"></div>
       <div class="btn-row">
-        <button class="btn btn-primary" onclick="copiarCodigo()">📋 Copiar mi código</button>
-        <button class="btn btn-accent" onclick="irAGrupal()">Ir a Gráfica Grupal →</button>
+        <button class="btn btn-primary btn-block" onclick="copiarCodigo()">📋 Copiar mi código</button>
       </div>
       
       <div id="copiado-msg"></div>
@@ -635,22 +653,25 @@
   <div id="panel-grupal" class="panel">
     
     <div class="alert alert-info">
-      <strong>📥 ¿Cómo funciona?</strong> Pega aquí los códigos que generaron tú y tus compañeros al terminar la encuesta. Las gráficas se actualizarán automáticamente. Puedes filtrar por grupo.
+      <strong>👨‍🏫 Sección para el profesor:</strong> Pega aquí todos los códigos de los alumnos juntos (separados por comas, espacios o saltos de línea). Se procesarán todos a la vez y se generarán las gráficas grupales con filtros por grupo.
     </div>
     
     <div class="section">
-      <h2 class="section-title">Agregar código</h2>
-      <textarea id="input-codigo" placeholder="Pega aquí tu código (también puedes pegar varios separados por comas o saltos de línea)"></textarea>
+      <h2 class="section-title">📥 Pegar códigos de los alumnos</h2>
+      <p style="color: var(--text-light); font-size: 0.9em; margin-bottom: 10px;">
+        Puedes pegar todos los códigos de una sola vez. El sistema los procesará automáticamente, los clasificará por grupo (1-5 y 1-6) y generará las gráficas.
+      </p>
+      <textarea id="input-codigo" placeholder="Pega aquí todos los códigos de los alumnos (separados por comas, espacios o saltos de línea)" style="min-height: 150px;"></textarea>
       <div class="btn-row">
         <button class="btn btn-primary" onclick="pegarCodigo()">📥 Pegar desde portapapeles</button>
-        <button class="btn btn-accent" onclick="agregarCodigo()">➕ Agregar código</button>
+        <button class="btn btn-accent" onclick="agregarCodigo()">⚡ Procesar todos los códigos</button>
         <button class="btn btn-secondary" onclick="limpiarTodo()">🗑️ Limpiar todo</button>
       </div>
       <div id="agregar-msg"></div>
     </div>
     
     <div class="section">
-      <h2 class="section-title">Filtrar gráficas por grupo</h2>
+      <h2 class="section-title">🔍 Filtrar gráficas por grupo</h2>
       <div class="group-filter">
         <button class="filter-btn active" onclick="filtrarGrupo('todos', this)">Todos los grupos</button>
         <button class="filter-btn" onclick="filtrarGrupo('1-5', this)">Grupo 1-5</button>
@@ -664,39 +685,13 @@
     </div>
     
     <div class="section">
-      <h2 class="section-title">Códigos registrados</h2>
+      <h2 class="section-title">📋 Códigos registrados</h2>
       <div class="codigo-list" id="lista-codigos">
         <p style="text-align: center; color: var(--text-light); padding: 20px;">Aún no hay códigos registrados</p>
       </div>
     </div>
     
     <div id="graficas-grupales" style="display: none;">
-      
-      <!-- COMPROBANTE PERSONAL (aparece solo cuando el alumno agregó SU código) -->
-      <div id="comprobante-section" style="display:none;">
-        <h2 class="section-title" style="margin-top: 20px;">🎓 Tu comprobante de participación</h2>
-        <p style="color: var(--text-light); font-size: 0.9em; margin-bottom: 15px;">
-          ¡Tu código ya fue registrado correctamente en la gráfica grupal! Descarga tu comprobante como evidencia de tu participación.
-        </p>
-        
-        <div id="comprobante" class="comprobante">
-          <h2>Comprobante de Participación</h2>
-          <div class="comprobante-subtitle">Encuesta de Convivencia Familiar y Valores</div>
-          <div class="comprobante-data">
-            <div><strong>Estudiante:</strong> <span id="c-nombre"></span></div>
-            <div><strong>Grupo:</strong> <span id="c-grupo"></span></div>
-            <div><strong>Fecha:</strong> <span id="c-fecha"></span></div>
-            <div><strong>Estado:</strong> <span style="color: var(--success); font-weight: bold;">✓ Código registrado en gráfica grupal</span></div>
-          </div>
-          <p style="font-size: 0.85em; color: var(--text-light); margin-top: 10px;">
-            Pensamiento Matemático · Proyecto Comunitario · Ciclo 2025-2026
-          </p>
-        </div>
-        
-        <div class="btn-row">
-          <button class="btn btn-accent btn-block" onclick="descargarComprobante()">📥 Descargar comprobante (PNG)</button>
-        </div>
-      </div>
       
       <h2 class="section-title" style="margin-top: 30px;">📊 Gráficas grupales</h2>
       
@@ -927,6 +922,9 @@ function mostrarResultados() {
   document.getElementById('paso-encuesta').style.display = 'none';
   document.getElementById('paso-resultados').style.display = 'block';
   
+  document.getElementById('c-nombre').textContent = datosEncuesta.nombre + ' ' + datosEncuesta.apellidos;
+  document.getElementById('c-grupo').textContent = datosEncuesta.grupo;
+  document.getElementById('c-fecha').textContent = datosEncuesta.fecha;
   document.getElementById('codigo-generado').textContent = codigoGenerado;
   
   renderGraficasPersonales();
@@ -1044,15 +1042,14 @@ function agregarCodigo() {
   const msg = document.getElementById('agregar-msg');
   
   if (!input) {
-    msg.innerHTML = '<div class="alert alert-error">⚠️ Pega un código primero</div>';
+    msg.innerHTML = '<div class="alert alert-error">⚠️ Pega los códigos primero</div>';
     setTimeout(() => msg.innerHTML = '', 3000);
     return;
   }
   
-  // Permitir múltiples códigos separados por coma o salto de línea
-  const codigos = input.split(/[\n,]+/).map(c => c.trim()).filter(c => c.length > 0);
+  // Permitir múltiples códigos separados por coma, espacios o saltos de línea
+  const codigos = input.split(/[\s,]+/).map(c => c.trim()).filter(c => c.length > 0);
   let agregados = 0, errores = 0, duplicados = 0;
-  let codigoPropioAgregado = false;
   
   codigos.forEach(codigo => {
     try {
@@ -1069,47 +1066,21 @@ function agregarCodigo() {
       }
       codigosGrupales.push({ codigo: codigo, datos: decodificado });
       agregados++;
-      
-      // Detectar si es el código del alumno actual
-      if (codigoGenerado && codigo === codigoGenerado) {
-        codigoPropioAgregado = true;
-      }
     } catch (e) {
       errores++;
     }
   });
   
   let mensajes = [];
-  if (agregados > 0) mensajes.push(`✅ ${agregados} código(s) agregado(s)`);
+  if (agregados > 0) mensajes.push(`✅ ${agregados} código(s) procesado(s) correctamente`);
   if (duplicados > 0) mensajes.push(`⚠️ ${duplicados} duplicado(s) ignorado(s)`);
   if (errores > 0) mensajes.push(`❌ ${errores} código(s) inválido(s)`);
   
   msg.innerHTML = `<div class="alert ${agregados > 0 ? 'alert-success' : 'alert-error'}">${mensajes.join(' · ')}</div>`;
-  setTimeout(() => msg.innerHTML = '', 4000);
+  setTimeout(() => msg.innerHTML = '', 5000);
   
   document.getElementById('input-codigo').value = '';
   renderGrupal();
-  
-  // Si el código del alumno actual fue agregado, mostrar comprobante
-  if (codigoPropioAgregado) {
-    mostrarComprobantePersonal();
-  }
-}
-
-function mostrarComprobantePersonal() {
-  // Llenar datos del comprobante
-  document.getElementById('c-nombre').textContent = datosEncuesta.nombre + ' ' + datosEncuesta.apellidos;
-  document.getElementById('c-grupo').textContent = datosEncuesta.grupo;
-  document.getElementById('c-fecha').textContent = datosEncuesta.fecha;
-  
-  // Mostrar la sección del comprobante
-  const seccion = document.getElementById('comprobante-section');
-  seccion.style.display = 'block';
-  
-  // Hacer scroll suave hasta el comprobante después de un breve delay
-  setTimeout(() => {
-    seccion.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }, 400);
 }
 
 function eliminarCodigo(idx) {
