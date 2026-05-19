@@ -1,0 +1,1297 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Encuesta: Convivencia Familiar y Valores</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  
+  :root {
+    --primary: #2c5f7f;
+    --primary-dark: #1a4258;
+    --accent: #e8a87c;
+    --accent-dark: #d4895f;
+    --bg: #f5f1e8;
+    --card: #ffffff;
+    --text: #2a2a2a;
+    --text-light: #6b6b6b;
+    --border: #e0d9c8;
+    --success: #5a8a5a;
+    --error: #c4564a;
+  }
+  
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 20px;
+    line-height: 1.6;
+  }
+  
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  
+  .header {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    color: white;
+    padding: 30px 25px;
+    border-radius: 12px 12px 0 0;
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  }
+  
+  .header h1 {
+    font-size: 1.6em;
+    margin-bottom: 8px;
+  }
+  
+  .header p {
+    opacity: 0.9;
+    font-size: 0.95em;
+  }
+  
+  .nav-tabs {
+    display: flex;
+    background: var(--card);
+    border-bottom: 2px solid var(--border);
+  }
+  
+  .nav-tab {
+    flex: 1;
+    padding: 15px;
+    text-align: center;
+    cursor: pointer;
+    font-weight: 600;
+    color: var(--text-light);
+    transition: all 0.3s;
+    border-bottom: 3px solid transparent;
+    font-size: 0.95em;
+  }
+  
+  .nav-tab.active {
+    color: var(--primary);
+    border-bottom-color: var(--accent);
+    background: rgba(232, 168, 124, 0.08);
+  }
+  
+  .nav-tab:hover:not(.active) {
+    background: #faf8f3;
+  }
+  
+  .panel {
+    background: var(--card);
+    padding: 30px 25px;
+    border-radius: 0 0 12px 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    display: none;
+  }
+  
+  .panel.active { display: block; }
+  
+  .section {
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+  }
+  
+  .section:last-child { border-bottom: none; }
+  
+  .section-title {
+    color: var(--primary);
+    font-size: 1.2em;
+    margin-bottom: 15px;
+    padding-left: 12px;
+    border-left: 4px solid var(--accent);
+  }
+  
+  .question {
+    margin-bottom: 22px;
+  }
+  
+  .question-label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: var(--text);
+  }
+  
+  .question-label .num {
+    color: var(--accent-dark);
+    margin-right: 5px;
+  }
+  
+  .options {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .options.horizontal {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  
+  .option {
+    display: flex;
+    align-items: center;
+    padding: 10px 14px;
+    background: #faf8f3;
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  
+  .option:hover {
+    background: #f0ebe0;
+    border-color: var(--accent);
+  }
+  
+  .option input {
+    margin-right: 10px;
+    cursor: pointer;
+    accent-color: var(--primary);
+  }
+  
+  .option.selected {
+    background: rgba(232, 168, 124, 0.15);
+    border-color: var(--accent);
+  }
+  
+  input[type="text"], input[type="number"], textarea, select {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    font-size: 1em;
+    font-family: inherit;
+    background: white;
+    transition: border-color 0.2s;
+  }
+  
+  input[type="text"]:focus, input[type="number"]:focus, textarea:focus, select:focus {
+    outline: none;
+    border-color: var(--primary);
+  }
+  
+  textarea { resize: vertical; min-height: 80px; }
+  
+  .btn {
+    padding: 14px 28px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: inherit;
+  }
+  
+  .btn-primary {
+    background: var(--primary);
+    color: white;
+  }
+  
+  .btn-primary:hover {
+    background: var(--primary-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(44, 95, 127, 0.3);
+  }
+  
+  .btn-accent {
+    background: var(--accent);
+    color: white;
+  }
+  
+  .btn-accent:hover {
+    background: var(--accent-dark);
+    transform: translateY(-2px);
+  }
+  
+  .btn-secondary {
+    background: #e8e8e8;
+    color: var(--text);
+  }
+  
+  .btn-secondary:hover {
+    background: #d8d8d8;
+  }
+  
+  .btn-block { width: 100%; }
+  
+  .btn-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 20px;
+  }
+  
+  .alert {
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin: 15px 0;
+    font-weight: 500;
+  }
+  
+  .alert-error {
+    background: #fce8e6;
+    color: var(--error);
+    border-left: 4px solid var(--error);
+  }
+  
+  .alert-success {
+    background: #e6f4e6;
+    color: var(--success);
+    border-left: 4px solid var(--success);
+  }
+  
+  .alert-info {
+    background: #e8f0f4;
+    color: var(--primary);
+    border-left: 4px solid var(--primary);
+  }
+  
+  /* COMPROBANTE */
+  .comprobante {
+    background: linear-gradient(135deg, #fefbf4 0%, #faf3e3 100%);
+    border: 3px double var(--primary);
+    border-radius: 12px;
+    padding: 30px 25px;
+    margin: 20px 0;
+    text-align: center;
+    position: relative;
+  }
+  
+  .comprobante::before {
+    content: "✓";
+    position: absolute;
+    top: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--success);
+    color: white;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5em;
+    font-weight: bold;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  }
+  
+  .comprobante h2 {
+    color: var(--primary);
+    margin-bottom: 5px;
+    font-size: 1.3em;
+  }
+  
+  .comprobante-subtitle {
+    color: var(--text-light);
+    font-size: 0.85em;
+    margin-bottom: 20px;
+    font-style: italic;
+  }
+  
+  .comprobante-data {
+    text-align: left;
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    margin: 15px 0;
+  }
+  
+  .comprobante-data div {
+    margin: 6px 0;
+    padding: 4px 0;
+    border-bottom: 1px dashed var(--border);
+  }
+  
+  .comprobante-data div:last-child { border-bottom: none; }
+  
+  .comprobante-data strong { color: var(--primary); }
+  
+  /* CÓDIGO */
+  .codigo-box {
+    background: var(--primary-dark);
+    color: white;
+    padding: 18px;
+    border-radius: 8px;
+    word-break: break-all;
+    font-family: 'Courier New', monospace;
+    font-size: 0.85em;
+    margin: 15px 0;
+    text-align: left;
+    border: 2px solid var(--accent);
+    user-select: all;
+    cursor: text;
+  }
+  
+  /* GRÁFICAS */
+  .chart-container {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    margin: 20px 0;
+    border: 1px solid var(--border);
+  }
+  
+  .chart-container h3 {
+    color: var(--primary);
+    margin-bottom: 15px;
+    font-size: 1.05em;
+  }
+  
+  .chart-wrapper {
+    position: relative;
+    height: 280px;
+  }
+  
+  /* GRUPAL */
+  .group-filter {
+    display: flex;
+    gap: 10px;
+    margin: 20px 0;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  
+  .filter-btn {
+    padding: 10px 20px;
+    border: 2px solid var(--primary);
+    background: white;
+    color: var(--primary);
+    border-radius: 25px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s;
+  }
+  
+  .filter-btn.active {
+    background: var(--primary);
+    color: white;
+  }
+  
+  .stats-box {
+    background: rgba(232, 168, 124, 0.1);
+    border: 1px solid var(--accent);
+    padding: 15px;
+    border-radius: 8px;
+    margin: 15px 0;
+    text-align: center;
+  }
+  
+  .stats-box .num {
+    font-size: 2em;
+    color: var(--primary);
+    font-weight: bold;
+  }
+  
+  .codigo-list {
+    max-height: 200px;
+    overflow-y: auto;
+    background: #faf8f3;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px;
+    margin: 10px 0;
+  }
+  
+  .codigo-item {
+    background: white;
+    padding: 8px 12px;
+    margin: 5px 0;
+    border-radius: 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.9em;
+  }
+  
+  .codigo-item .del {
+    background: var(--error);
+    color: white;
+    border: none;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-weight: bold;
+  }
+  
+  @media (max-width: 600px) {
+    body { padding: 10px; }
+    .header { padding: 20px 15px; }
+    .header h1 { font-size: 1.3em; }
+    .panel { padding: 20px 15px; }
+    .nav-tab { padding: 12px 8px; font-size: 0.85em; }
+    .btn { padding: 12px 20px; font-size: 0.95em; }
+    .options.horizontal { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  
+  <div class="header">
+    <h1>🏡 Convivencia Familiar y Valores</h1>
+    <p>Proyecto: "La escuela va a la comunidad: construyendo valores en familia"</p>
+  </div>
+  
+  <div class="nav-tabs">
+    <div class="nav-tab active" onclick="showPanel('encuesta', this)">📝 Encuesta</div>
+    <div class="nav-tab" onclick="showPanel('grupal', this)">📊 Gráfica Grupal</div>
+  </div>
+  
+  <!-- ============ PANEL ENCUESTA ============ -->
+  <div id="panel-encuesta" class="panel active">
+    
+    <!-- PASO 1: REGISTRO -->
+    <div id="paso-registro">
+      <div class="section">
+        <h2 class="section-title">Datos del estudiante</h2>
+        <div class="question">
+          <label class="question-label">Nombre(s):</label>
+          <input type="text" id="nombre" placeholder="Tu nombre">
+        </div>
+        <div class="question">
+          <label class="question-label">Apellidos:</label>
+          <input type="text" id="apellidos" placeholder="Tus apellidos">
+        </div>
+        <div class="question">
+          <label class="question-label">Grupo:</label>
+          <select id="grupo">
+            <option value="">-- Selecciona tu grupo --</option>
+            <option value="1-5">1-5</option>
+            <option value="1-6">1-6</option>
+          </select>
+        </div>
+        <div id="registro-error"></div>
+        <button class="btn btn-primary btn-block" onclick="iniciarEncuesta()">Comenzar encuesta →</button>
+      </div>
+    </div>
+    
+    <!-- PASO 2: ENCUESTA -->
+    <div id="paso-encuesta" style="display:none;">
+      <div class="alert alert-info">
+        <strong>📋 Instrucciones:</strong> Responde con honestidad. Tus respuestas son anónimas y se usarán solo para fines educativos.
+      </div>
+      
+      <!-- SECCIÓN A -->
+      <div class="section">
+        <h2 class="section-title">A. Valores y convivencia</h2>
+        
+        <div class="question" data-q="1">
+          <label class="question-label"><span class="num">1.</span> De los siguientes valores, selecciona los TRES que consideras más importantes para convivir en familia:</label>
+          <div class="options horizontal" id="q1"></div>
+          <small style="color: var(--text-light);">Máximo 3 opciones</small>
+        </div>
+        
+        <div class="question" data-q="2">
+          <label class="question-label"><span class="num">2.</span> ¿Por qué consideras que esos valores son los más importantes?</label>
+          <textarea id="q2" placeholder="Escribe brevemente tu respuesta..."></textarea>
+        </div>
+        
+        <div class="question" data-q="3">
+          <label class="question-label"><span class="num">3.</span> En una escala del 1 al 5, ¿qué tan presentes están los valores en tu hogar?</label>
+          <div class="options" id="q3"></div>
+        </div>
+      </div>
+      
+      <!-- SECCIÓN B -->
+      <div class="section">
+        <h2 class="section-title">B. Frecuencia de convivencia</h2>
+        
+        <div class="question" data-q="4">
+          <label class="question-label"><span class="num">4.</span> ¿Con qué frecuencia realizas actividades de convivencia con tus padres o tutores?</label>
+          <div class="options" id="q4"></div>
+        </div>
+        
+        <div class="question" data-q="5">
+          <label class="question-label"><span class="num">5.</span> ¿Cuántas horas al día convives con tu familia sin usar dispositivos electrónicos?</label>
+          <div class="options" id="q5"></div>
+        </div>
+        
+        <div class="question" data-q="6">
+          <label class="question-label"><span class="num">6.</span> ¿Con qué frecuencia tu familia comparte la comida (cena o comida principal)?</label>
+          <div class="options" id="q6"></div>
+        </div>
+      </div>
+      
+      <!-- SECCIÓN C -->
+      <div class="section">
+        <h2 class="section-title">C. Problemáticas que afectan la convivencia</h2>
+        
+        <div class="question" data-q="7">
+          <label class="question-label"><span class="num">7.</span> ¿Qué situaciones consideras que afectan más la convivencia familiar actualmente? (hasta 3)</label>
+          <div class="options" id="q7"></div>
+          <small style="color: var(--text-light);">Máximo 3 opciones</small>
+        </div>
+        
+        <div class="question" data-q="8">
+          <label class="question-label"><span class="num">8.</span> En una escala del 1 al 5, ¿qué tanto afecta el uso de dispositivos electrónicos a tu convivencia familiar?</label>
+          <div class="options" id="q8"></div>
+        </div>
+      </div>
+      
+      <!-- SECCIÓN D -->
+      <div class="section">
+        <h2 class="section-title">D. Influencia de la familia</h2>
+        
+        <div class="question" data-q="9">
+          <label class="question-label"><span class="num">9.</span> ¿De qué manera consideras que influye la familia en la conducta y formación de los jóvenes?</label>
+          <div class="options" id="q9"></div>
+        </div>
+        
+        <div class="question" data-q="10">
+          <label class="question-label"><span class="num">10.</span> En una escala del 1 al 5, ¿qué tanto influyen tus padres o tutores en las decisiones importantes de tu vida?</label>
+          <div class="options" id="q10"></div>
+        </div>
+      </div>
+      
+      <!-- SECCIÓN E -->
+      <div class="section">
+        <h2 class="section-title">E. Propuestas y participación</h2>
+        
+        <div class="question" data-q="11">
+          <label class="question-label"><span class="num">11.</span> ¿Qué actividades te gustaría realizar con tu familia para fortalecer los valores y la convivencia? (hasta 3)</label>
+          <div class="options" id="q11"></div>
+          <small style="color: var(--text-light);">Máximo 3 opciones</small>
+        </div>
+        
+        <div class="question" data-q="12">
+          <label class="question-label"><span class="num">12.</span> ¿Por qué consideras importante que la escuela trabaje en conjunto con la comunidad y las familias?</label>
+          <div class="options" id="q12"></div>
+        </div>
+        
+        <div class="question" data-q="13">
+          <label class="question-label"><span class="num">13.</span> Explica brevemente tu respuesta anterior:</label>
+          <textarea id="q13" placeholder="Escribe brevemente tu respuesta..."></textarea>
+        </div>
+        
+        <div class="question" data-q="14">
+          <label class="question-label"><span class="num">14.</span> ¿Cuántas veces al año participan tus padres o tutores en actividades escolares?</label>
+          <div class="options" id="q14"></div>
+        </div>
+      </div>
+      
+      <div id="encuesta-error"></div>
+      <button class="btn btn-primary btn-block" onclick="finalizarEncuesta()">Finalizar encuesta ✓</button>
+    </div>
+    
+    <!-- PASO 3: CÓDIGO Y GRÁFICAS PERSONALES (SIN COMPROBANTE) -->
+    <div id="paso-resultados" style="display:none;">
+      
+      <div class="alert alert-success">
+        <strong>✅ ¡Encuesta completada!</strong> Ahora copia tu código y pégalo en la sección <strong>Gráfica Grupal</strong>. Una vez registrado, podrás descargar tu comprobante de participación.
+      </div>
+      
+      <h3 style="color: var(--primary); margin-top: 20px;">🔐 Tu código personal:</h3>
+      <p style="color: var(--text-light); margin-bottom: 10px; font-size: 0.9em;">
+        Copia este código y pégalo en la sección <strong>Gráfica Grupal</strong> para que tus respuestas se sumen al análisis del grupo.
+      </p>
+      <div class="codigo-box" id="codigo-generado"></div>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="copiarCodigo()">📋 Copiar mi código</button>
+        <button class="btn btn-accent" onclick="irAGrupal()">Ir a Gráfica Grupal →</button>
+      </div>
+      
+      <div id="copiado-msg"></div>
+      
+      <h3 style="color: var(--primary); margin-top: 30px;">📊 Tus respuestas personales en gráficas:</h3>
+      <p style="color: var(--text-light); font-size: 0.9em; margin-bottom: 15px;">
+        Visualización individual de cómo respondiste cada sección de la encuesta.
+      </p>
+      
+      <div class="chart-container">
+        <h3>Gráfica 1: Tu evaluación general (escalas del 1 al 5)</h3>
+        <p style="font-size: 0.85em; color: var(--text-light); margin-bottom: 10px;">Muestra cómo calificaste del 1 (mínimo) al 5 (máximo) tres aspectos clave de tu convivencia familiar.</p>
+        <div class="chart-wrapper"><canvas id="chart-personal-escalas"></canvas></div>
+      </div>
+      
+      <div class="chart-container">
+        <h3>Gráfica 2: Valores que elegiste como más importantes</h3>
+        <p style="font-size: 0.85em; color: var(--text-light); margin-bottom: 10px;">Los tres valores que seleccionaste como más importantes para convivir en familia.</p>
+        <div class="chart-wrapper"><canvas id="chart-personal-valores"></canvas></div>
+      </div>
+      
+      <div class="chart-container">
+        <h3>Gráfica 3: Situaciones que afectan tu convivencia familiar</h3>
+        <p style="font-size: 0.85em; color: var(--text-light); margin-bottom: 10px;">Las situaciones que identificaste como las que más afectan la convivencia en tu hogar.</p>
+        <div class="chart-wrapper"><canvas id="chart-personal-problemas"></canvas></div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- ============ PANEL GRUPAL ============ -->
+  <div id="panel-grupal" class="panel">
+    
+    <div class="alert alert-info">
+      <strong>📥 ¿Cómo funciona?</strong> Pega aquí los códigos que generaron tú y tus compañeros al terminar la encuesta. Las gráficas se actualizarán automáticamente. Puedes filtrar por grupo.
+    </div>
+    
+    <div class="section">
+      <h2 class="section-title">Agregar código</h2>
+      <textarea id="input-codigo" placeholder="Pega aquí tu código (también puedes pegar varios separados por comas o saltos de línea)"></textarea>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="pegarCodigo()">📥 Pegar desde portapapeles</button>
+        <button class="btn btn-accent" onclick="agregarCodigo()">➕ Agregar código</button>
+        <button class="btn btn-secondary" onclick="limpiarTodo()">🗑️ Limpiar todo</button>
+      </div>
+      <div id="agregar-msg"></div>
+    </div>
+    
+    <div class="section">
+      <h2 class="section-title">Filtrar gráficas por grupo</h2>
+      <div class="group-filter">
+        <button class="filter-btn active" onclick="filtrarGrupo('todos', this)">Todos los grupos</button>
+        <button class="filter-btn" onclick="filtrarGrupo('1-5', this)">Grupo 1-5</button>
+        <button class="filter-btn" onclick="filtrarGrupo('1-6', this)">Grupo 1-6</button>
+      </div>
+      
+      <div class="stats-box">
+        <div class="num" id="total-respuestas">0</div>
+        <div>respuestas registradas en este filtro</div>
+      </div>
+    </div>
+    
+    <div class="section">
+      <h2 class="section-title">Códigos registrados</h2>
+      <div class="codigo-list" id="lista-codigos">
+        <p style="text-align: center; color: var(--text-light); padding: 20px;">Aún no hay códigos registrados</p>
+      </div>
+    </div>
+    
+    <div id="graficas-grupales" style="display: none;">
+      
+      <!-- COMPROBANTE PERSONAL (aparece solo cuando el alumno agregó SU código) -->
+      <div id="comprobante-section" style="display:none;">
+        <h2 class="section-title" style="margin-top: 20px;">🎓 Tu comprobante de participación</h2>
+        <p style="color: var(--text-light); font-size: 0.9em; margin-bottom: 15px;">
+          ¡Tu código ya fue registrado correctamente en la gráfica grupal! Descarga tu comprobante como evidencia de tu participación.
+        </p>
+        
+        <div id="comprobante" class="comprobante">
+          <h2>Comprobante de Participación</h2>
+          <div class="comprobante-subtitle">Encuesta de Convivencia Familiar y Valores</div>
+          <div class="comprobante-data">
+            <div><strong>Estudiante:</strong> <span id="c-nombre"></span></div>
+            <div><strong>Grupo:</strong> <span id="c-grupo"></span></div>
+            <div><strong>Fecha:</strong> <span id="c-fecha"></span></div>
+            <div><strong>Estado:</strong> <span style="color: var(--success); font-weight: bold;">✓ Código registrado en gráfica grupal</span></div>
+          </div>
+          <p style="font-size: 0.85em; color: var(--text-light); margin-top: 10px;">
+            Pensamiento Matemático · Proyecto Comunitario · Ciclo 2025-2026
+          </p>
+        </div>
+        
+        <div class="btn-row">
+          <button class="btn btn-accent btn-block" onclick="descargarComprobante()">📥 Descargar comprobante (PNG)</button>
+        </div>
+      </div>
+      
+      <h2 class="section-title" style="margin-top: 30px;">📊 Gráficas grupales</h2>
+      
+      <div class="chart-container">
+        <h3>Gráfica 1: Valores más elegidos por el grupo</h3>
+        <p style="font-size: 0.85em; color: var(--text-light); margin-bottom: 10px;">
+          Esta gráfica muestra cuántas veces cada valor fue seleccionado por los estudiantes como uno de los tres más importantes para convivir en familia. Permite identificar qué valores son los más reconocidos por el grupo.
+        </p>
+        <div class="chart-wrapper"><canvas id="chart-grupal-valores"></canvas></div>
+      </div>
+      
+      <div class="chart-container">
+        <h3>Gráfica 2: Situaciones que más afectan la convivencia familiar</h3>
+        <p style="font-size: 0.85em; color: var(--text-light); margin-bottom: 10px;">
+          Esta gráfica revela cuáles son las problemáticas que el grupo identifica como más perjudiciales para la convivencia en el hogar. Es clave para detectar áreas de intervención del proyecto.
+        </p>
+        <div class="chart-wrapper"><canvas id="chart-grupal-problemas"></canvas></div>
+      </div>
+      
+      <div class="chart-container">
+        <h3>Gráfica 3: Actividades preferidas para fortalecer valores en familia</h3>
+        <p style="font-size: 0.85em; color: var(--text-light); margin-bottom: 10px;">
+          Esta gráfica muestra qué actividades les gustaría realizar a los estudiantes con sus familias para fortalecer los valores y la convivencia. Sirve como base para proponer acciones concretas del proyecto comunitario.
+        </p>
+        <div class="chart-wrapper"><canvas id="chart-grupal-actividades"></canvas></div>
+      </div>
+      
+      <div class="chart-container">
+        <h3>📐 Estadísticas matemáticas del grupo</h3>
+        <p style="font-size: 0.85em; color: var(--text-light); margin-bottom: 10px;">
+          Análisis cuantitativo aplicado al pensamiento matemático: media, mediana, moda y rango de las preguntas con escala numérica.
+        </p>
+        <div id="stats-matematicas" style="font-size: 0.95em; line-height: 1.8;"></div>
+      </div>
+    </div>
+  </div>
+  
+</div>
+
+<script>
+// ============================================================
+// DATOS DE LAS PREGUNTAS
+// ============================================================
+const opcionesValores = ["Respeto", "Honestidad", "Responsabilidad", "Empatía", "Tolerancia", "Comunicación", "Solidaridad", "Amor", "Confianza", "Paciencia"];
+const opcionesEscala = ["1 - Nada", "2 - Poco", "3 - Regular", "4 - Mucho", "5 - Totalmente"];
+const opcionesFrecuencia = ["Diariamente", "3-5 veces/semana", "1-2 veces/semana", "Solo fines de semana", "Casi nunca"];
+const opcionesHoras = ["Menos de 1h", "1-2 horas", "2-3 horas", "3-4 horas", "Más de 4h"];
+const opcionesComida = ["Nunca", "A veces", "Frecuentemente", "Siempre"];
+const opcionesProblemas = ["Uso excesivo de celulares", "Largas jornadas laborales", "Falta de comunicación", "Problemas económicos", "Diferencias generacionales", "Adicciones", "Violencia familiar", "Falta de tiempo libre"];
+const opcionesInfluencia = ["Muy positiva", "Positiva", "Neutra", "Negativa", "Muy negativa"];
+const opcionesActividades = ["Salidas recreativas", "Actividades deportivas", "Juegos de mesa/videojuegos", "Talleres o cursos", "Servicio comunitario", "Viajes", "Cocinar juntos", "Conversaciones en familia"];
+const opcionesImportancia = ["Muy importante", "Importante", "Poco importante", "Nada importante"];
+const opcionesVeces = ["0 veces", "1-2 veces", "3-5 veces", "6 o más veces"];
+
+// ============================================================
+// VARIABLES GLOBALES
+// ============================================================
+let datosEncuesta = {};
+let codigoGenerado = "";
+let codigosGrupales = [];
+let filtroActual = 'todos';
+let chartsPersonal = {};
+let chartsGrupal = {};
+
+// ============================================================
+// INICIALIZAR PREGUNTAS
+// ============================================================
+function generarOpciones(idContenedor, opciones, tipo, maxSelect) {
+  const cont = document.getElementById(idContenedor);
+  opciones.forEach((opc, i) => {
+    const label = document.createElement('label');
+    label.className = 'option';
+    const input = document.createElement('input');
+    input.type = tipo;
+    input.name = idContenedor;
+    input.value = i;
+    if (tipo === 'checkbox' && maxSelect) {
+      input.addEventListener('change', () => limitarSeleccion(idContenedor, maxSelect));
+    }
+    input.addEventListener('change', () => actualizarVisualSeleccion(idContenedor));
+    label.appendChild(input);
+    label.appendChild(document.createTextNode(' ' + opc));
+    cont.appendChild(label);
+  });
+}
+
+function limitarSeleccion(idContenedor, max) {
+  const seleccionados = document.querySelectorAll(`#${idContenedor} input:checked`);
+  if (seleccionados.length > max) {
+    seleccionados[seleccionados.length - 1].checked = false;
+    alert(`Solo puedes seleccionar máximo ${max} opciones`);
+  }
+  actualizarVisualSeleccion(idContenedor);
+}
+
+function actualizarVisualSeleccion(idContenedor) {
+  document.querySelectorAll(`#${idContenedor} .option`).forEach(label => {
+    const input = label.querySelector('input');
+    if (input.checked) label.classList.add('selected');
+    else label.classList.remove('selected');
+  });
+}
+
+// Generar todas las opciones
+generarOpciones('q1', opcionesValores, 'checkbox', 3);
+generarOpciones('q3', opcionesEscala, 'radio');
+generarOpciones('q4', opcionesFrecuencia, 'radio');
+generarOpciones('q5', opcionesHoras, 'radio');
+generarOpciones('q6', opcionesComida, 'radio');
+generarOpciones('q7', opcionesProblemas, 'checkbox', 3);
+generarOpciones('q8', opcionesEscala, 'radio');
+generarOpciones('q9', opcionesInfluencia, 'radio');
+generarOpciones('q10', opcionesEscala, 'radio');
+generarOpciones('q11', opcionesActividades, 'checkbox', 3);
+generarOpciones('q12', opcionesImportancia, 'radio');
+generarOpciones('q14', opcionesVeces, 'radio');
+
+// ============================================================
+// NAVEGACIÓN
+// ============================================================
+function showPanel(panel, tab) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('panel-' + panel).classList.add('active');
+  tab.classList.add('active');
+  if (panel === 'grupal') renderGrupal();
+}
+
+function irAGrupal() {
+  document.querySelectorAll('.nav-tab')[1].click();
+  window.scrollTo(0, 0);
+}
+
+// ============================================================
+// PASO 1: REGISTRO
+// ============================================================
+function iniciarEncuesta() {
+  const nombre = document.getElementById('nombre').value.trim();
+  const apellidos = document.getElementById('apellidos').value.trim();
+  const grupo = document.getElementById('grupo').value;
+  const err = document.getElementById('registro-error');
+  
+  if (!nombre || !apellidos || !grupo) {
+    err.innerHTML = '<div class="alert alert-error">⚠️ Por favor completa todos los campos</div>';
+    return;
+  }
+  
+  datosEncuesta.nombre = nombre;
+  datosEncuesta.apellidos = apellidos;
+  datosEncuesta.grupo = grupo;
+  
+  document.getElementById('paso-registro').style.display = 'none';
+  document.getElementById('paso-encuesta').style.display = 'block';
+  window.scrollTo(0, 0);
+}
+
+// ============================================================
+// PASO 2: FINALIZAR ENCUESTA
+// ============================================================
+function obtenerSeleccionMultiple(idContenedor) {
+  return Array.from(document.querySelectorAll(`#${idContenedor} input:checked`)).map(i => parseInt(i.value));
+}
+
+function obtenerSeleccionUnica(idContenedor) {
+  const el = document.querySelector(`#${idContenedor} input:checked`);
+  return el ? parseInt(el.value) : -1;
+}
+
+function finalizarEncuesta() {
+  const respuestas = {
+    q1: obtenerSeleccionMultiple('q1'),
+    q2: document.getElementById('q2').value.trim(),
+    q3: obtenerSeleccionUnica('q3'),
+    q4: obtenerSeleccionUnica('q4'),
+    q5: obtenerSeleccionUnica('q5'),
+    q6: obtenerSeleccionUnica('q6'),
+    q7: obtenerSeleccionMultiple('q7'),
+    q8: obtenerSeleccionUnica('q8'),
+    q9: obtenerSeleccionUnica('q9'),
+    q10: obtenerSeleccionUnica('q10'),
+    q11: obtenerSeleccionMultiple('q11'),
+    q12: obtenerSeleccionUnica('q12'),
+    q13: document.getElementById('q13').value.trim(),
+    q14: obtenerSeleccionUnica('q14')
+  };
+  
+  // Validación
+  const err = document.getElementById('encuesta-error');
+  const faltantes = [];
+  if (respuestas.q1.length === 0) faltantes.push('1');
+  if (respuestas.q3 === -1) faltantes.push('3');
+  if (respuestas.q4 === -1) faltantes.push('4');
+  if (respuestas.q5 === -1) faltantes.push('5');
+  if (respuestas.q6 === -1) faltantes.push('6');
+  if (respuestas.q7.length === 0) faltantes.push('7');
+  if (respuestas.q8 === -1) faltantes.push('8');
+  if (respuestas.q9 === -1) faltantes.push('9');
+  if (respuestas.q10 === -1) faltantes.push('10');
+  if (respuestas.q11.length === 0) faltantes.push('11');
+  if (respuestas.q12 === -1) faltantes.push('12');
+  if (respuestas.q14 === -1) faltantes.push('14');
+  
+  if (faltantes.length > 0) {
+    err.innerHTML = `<div class="alert alert-error">⚠️ Por favor responde las preguntas: ${faltantes.join(', ')}</div>`;
+    window.scrollTo(0, 0);
+    return;
+  }
+  
+  datosEncuesta.respuestas = respuestas;
+  datosEncuesta.fecha = new Date().toLocaleString('es-MX');
+  
+  // Generar código
+  const dataCodigo = {
+    n: datosEncuesta.nombre + ' ' + datosEncuesta.apellidos,
+    g: datosEncuesta.grupo,
+    f: datosEncuesta.fecha,
+    r: respuestas
+  };
+  codigoGenerado = btoa(unescape(encodeURIComponent(JSON.stringify(dataCodigo))));
+  
+  mostrarResultados();
+}
+
+// ============================================================
+// PASO 3: MOSTRAR RESULTADOS
+// ============================================================
+function mostrarResultados() {
+  document.getElementById('paso-encuesta').style.display = 'none';
+  document.getElementById('paso-resultados').style.display = 'block';
+  
+  document.getElementById('codigo-generado').textContent = codigoGenerado;
+  
+  renderGraficasPersonales();
+  window.scrollTo(0, 0);
+}
+
+function renderGraficasPersonales() {
+  const r = datosEncuesta.respuestas;
+  
+  // Escalas personales
+  if (chartsPersonal.escalas) chartsPersonal.escalas.destroy();
+  chartsPersonal.escalas = new Chart(document.getElementById('chart-personal-escalas'), {
+    type: 'bar',
+    data: {
+      labels: ['Valores en hogar (P3)', 'Afectación dispositivos (P8)', 'Influencia familiar (P10)'],
+      datasets: [{
+        label: 'Tu puntuación (1-5)',
+        data: [r.q3 + 1, r.q8 + 1, r.q10 + 1],
+        backgroundColor: ['#2c5f7f', '#e8a87c', '#5a8a5a']
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: { y: { beginAtZero: true, max: 5 } },
+      plugins: { legend: { display: false } }
+    }
+  });
+  
+  // Valores
+  if (chartsPersonal.valores) chartsPersonal.valores.destroy();
+  chartsPersonal.valores = new Chart(document.getElementById('chart-personal-valores'), {
+    type: 'doughnut',
+    data: {
+      labels: r.q1.map(i => opcionesValores[i]),
+      datasets: [{
+        data: r.q1.map(() => 1),
+        backgroundColor: ['#2c5f7f', '#e8a87c', '#5a8a5a']
+      }]
+    },
+    options: { responsive: true, maintainAspectRatio: false }
+  });
+  
+  // Problemas
+  if (chartsPersonal.problemas) chartsPersonal.problemas.destroy();
+  chartsPersonal.problemas = new Chart(document.getElementById('chart-personal-problemas'), {
+    type: 'pie',
+    data: {
+      labels: r.q7.map(i => opcionesProblemas[i]),
+      datasets: [{
+        data: r.q7.map(() => 1),
+        backgroundColor: ['#c4564a', '#e8a87c', '#d4895f']
+      }]
+    },
+    options: { responsive: true, maintainAspectRatio: false }
+  });
+}
+
+// ============================================================
+// COPIAR CÓDIGO
+// ============================================================
+function copiarCodigo() {
+  const msg = document.getElementById('copiado-msg');
+  
+  // Método compatible con todos los navegadores
+  const txt = document.createElement('textarea');
+  txt.value = codigoGenerado;
+  txt.style.position = 'fixed';
+  txt.style.opacity = '0';
+  document.body.appendChild(txt);
+  txt.select();
+  
+  try {
+    document.execCommand('copy');
+    msg.innerHTML = '<div class="alert alert-success">✅ ¡Código copiado al portapapeles!</div>';
+  } catch (e) {
+    msg.innerHTML = '<div class="alert alert-info">ℹ️ Selecciona y copia el código manualmente (Ctrl+C)</div>';
+  }
+  
+  document.body.removeChild(txt);
+  
+  setTimeout(() => { msg.innerHTML = ''; }, 3000);
+}
+
+// ============================================================
+// DESCARGAR COMPROBANTE
+// ============================================================
+function descargarComprobante() {
+  const comprobante = document.getElementById('comprobante');
+  html2canvas(comprobante, { backgroundColor: '#fefbf4', scale: 2 }).then(canvas => {
+    const link = document.createElement('a');
+    link.download = `Comprobante_${datosEncuesta.nombre}_${datosEncuesta.grupo}.png`;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+  });
+}
+
+// ============================================================
+// SECCIÓN GRUPAL
+// ============================================================
+function pegarCodigo() {
+  if (navigator.clipboard && navigator.clipboard.readText) {
+    navigator.clipboard.readText().then(text => {
+      document.getElementById('input-codigo').value = text;
+    }).catch(() => {
+      alert('Por favor pega el código manualmente (Ctrl+V) en el campo');
+    });
+  } else {
+    alert('Por favor pega el código manualmente (Ctrl+V) en el campo');
+  }
+}
+
+function agregarCodigo() {
+  const input = document.getElementById('input-codigo').value.trim();
+  const msg = document.getElementById('agregar-msg');
+  
+  if (!input) {
+    msg.innerHTML = '<div class="alert alert-error">⚠️ Pega un código primero</div>';
+    setTimeout(() => msg.innerHTML = '', 3000);
+    return;
+  }
+  
+  // Permitir múltiples códigos separados por coma o salto de línea
+  const codigos = input.split(/[\n,]+/).map(c => c.trim()).filter(c => c.length > 0);
+  let agregados = 0, errores = 0, duplicados = 0;
+  let codigoPropioAgregado = false;
+  
+  codigos.forEach(codigo => {
+    try {
+      const decodificado = JSON.parse(decodeURIComponent(escape(atob(codigo))));
+      if (!decodificado.n || !decodificado.g || !decodificado.r) {
+        errores++;
+        return;
+      }
+      // Verificar duplicado
+      const existe = codigosGrupales.some(c => c.codigo === codigo);
+      if (existe) {
+        duplicados++;
+        return;
+      }
+      codigosGrupales.push({ codigo: codigo, datos: decodificado });
+      agregados++;
+      
+      // Detectar si es el código del alumno actual
+      if (codigoGenerado && codigo === codigoGenerado) {
+        codigoPropioAgregado = true;
+      }
+    } catch (e) {
+      errores++;
+    }
+  });
+  
+  let mensajes = [];
+  if (agregados > 0) mensajes.push(`✅ ${agregados} código(s) agregado(s)`);
+  if (duplicados > 0) mensajes.push(`⚠️ ${duplicados} duplicado(s) ignorado(s)`);
+  if (errores > 0) mensajes.push(`❌ ${errores} código(s) inválido(s)`);
+  
+  msg.innerHTML = `<div class="alert ${agregados > 0 ? 'alert-success' : 'alert-error'}">${mensajes.join(' · ')}</div>`;
+  setTimeout(() => msg.innerHTML = '', 4000);
+  
+  document.getElementById('input-codigo').value = '';
+  renderGrupal();
+  
+  // Si el código del alumno actual fue agregado, mostrar comprobante
+  if (codigoPropioAgregado) {
+    mostrarComprobantePersonal();
+  }
+}
+
+function mostrarComprobantePersonal() {
+  // Llenar datos del comprobante
+  document.getElementById('c-nombre').textContent = datosEncuesta.nombre + ' ' + datosEncuesta.apellidos;
+  document.getElementById('c-grupo').textContent = datosEncuesta.grupo;
+  document.getElementById('c-fecha').textContent = datosEncuesta.fecha;
+  
+  // Mostrar la sección del comprobante
+  const seccion = document.getElementById('comprobante-section');
+  seccion.style.display = 'block';
+  
+  // Hacer scroll suave hasta el comprobante después de un breve delay
+  setTimeout(() => {
+    seccion.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 400);
+}
+
+function eliminarCodigo(idx) {
+  if (confirm('¿Eliminar este código?')) {
+    codigosGrupales.splice(idx, 1);
+    renderGrupal();
+  }
+}
+
+function limpiarTodo() {
+  if (codigosGrupales.length === 0) return;
+  if (confirm('¿Eliminar TODOS los códigos registrados?')) {
+    codigosGrupales = [];
+    renderGrupal();
+  }
+}
+
+function filtrarGrupo(grupo, btn) {
+  filtroActual = grupo;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderGrupal();
+}
+
+function renderGrupal() {
+  const lista = document.getElementById('lista-codigos');
+  
+  if (codigosGrupales.length === 0) {
+    lista.innerHTML = '<p style="text-align: center; color: var(--text-light); padding: 20px;">Aún no hay códigos registrados</p>';
+    document.getElementById('graficas-grupales').style.display = 'none';
+    document.getElementById('total-respuestas').textContent = '0';
+    return;
+  }
+  
+  // Lista
+  lista.innerHTML = codigosGrupales.map((c, i) => `
+    <div class="codigo-item">
+      <span><strong>${c.datos.n}</strong> · Grupo ${c.datos.g}</span>
+      <button class="del" onclick="eliminarCodigo(${i})">×</button>
+    </div>
+  `).join('');
+  
+  // Filtrar
+  let filtrados = codigosGrupales;
+  if (filtroActual !== 'todos') {
+    filtrados = codigosGrupales.filter(c => c.datos.g === filtroActual);
+  }
+  
+  document.getElementById('total-respuestas').textContent = filtrados.length;
+  
+  if (filtrados.length === 0) {
+    document.getElementById('graficas-grupales').style.display = 'none';
+    return;
+  }
+  
+  document.getElementById('graficas-grupales').style.display = 'block';
+  renderGraficasGrupales(filtrados);
+}
+
+function renderGraficasGrupales(datos) {
+  // GRÁFICA 1: Valores más elegidos
+  const conteoValores = new Array(opcionesValores.length).fill(0);
+  datos.forEach(d => d.datos.r.q1.forEach(i => conteoValores[i]++));
+  
+  if (chartsGrupal.valores) chartsGrupal.valores.destroy();
+  chartsGrupal.valores = new Chart(document.getElementById('chart-grupal-valores'), {
+    type: 'bar',
+    data: {
+      labels: opcionesValores,
+      datasets: [{
+        label: 'Veces elegido',
+        data: conteoValores,
+        backgroundColor: '#2c5f7f'
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } }
+    }
+  });
+  
+  // GRÁFICA 2: Problemas/situaciones que afectan
+  const conteoProblemas = new Array(opcionesProblemas.length).fill(0);
+  datos.forEach(d => d.datos.r.q7.forEach(i => conteoProblemas[i]++));
+  
+  if (chartsGrupal.problemas) chartsGrupal.problemas.destroy();
+  chartsGrupal.problemas = new Chart(document.getElementById('chart-grupal-problemas'), {
+    type: 'bar',
+    data: {
+      labels: opcionesProblemas,
+      datasets: [{
+        label: 'Veces mencionado',
+        data: conteoProblemas,
+        backgroundColor: '#c4564a'
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } }
+    }
+  });
+  
+  // GRÁFICA 3: Actividades preferidas
+  const conteoAct = new Array(opcionesActividades.length).fill(0);
+  datos.forEach(d => d.datos.r.q11.forEach(i => conteoAct[i]++));
+  
+  if (chartsGrupal.actividades) chartsGrupal.actividades.destroy();
+  chartsGrupal.actividades = new Chart(document.getElementById('chart-grupal-actividades'), {
+    type: 'bar',
+    data: {
+      labels: opcionesActividades,
+      datasets: [{
+        label: 'Veces elegida',
+        data: conteoAct,
+        backgroundColor: '#5a8a5a'
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } }
+    }
+  });
+  
+  // Estadísticas matemáticas
+  renderEstadisticas(datos);
+}
+
+function renderEstadisticas(datos) {
+  const calcular = (campo) => {
+    const valores = datos.map(d => d.datos.r[campo] + 1).sort((a, b) => a - b);
+    const suma = valores.reduce((a, b) => a + b, 0);
+    const media = suma / valores.length;
+    const mediana = valores.length % 2 === 0
+      ? (valores[valores.length/2 - 1] + valores[valores.length/2]) / 2
+      : valores[Math.floor(valores.length/2)];
+    const freq = {};
+    valores.forEach(v => freq[v] = (freq[v] || 0) + 1);
+    const moda = Object.keys(freq).reduce((a, b) => freq[a] > freq[b] ? a : b);
+    const min = valores[0];
+    const max = valores[valores.length - 1];
+    const rango = max - min;
+    return { media: media.toFixed(2), mediana, moda, min, max, rango };
+  };
+  
+  const e3 = calcular('q3');
+  const e8 = calcular('q8');
+  const e10 = calcular('q10');
+  
+  document.getElementById('stats-matematicas').innerHTML = `
+    <p><strong>📊 Total de respuestas analizadas:</strong> ${datos.length}</p>
+    <hr style="margin: 10px 0; border: none; border-top: 1px dashed var(--border);">
+    <p><strong>Pregunta 3 — Valores en el hogar (escala 1-5):</strong></p>
+    <ul style="margin-left: 20px;">
+      <li>Media (promedio): <strong>${e3.media}</strong></li>
+      <li>Mediana: <strong>${e3.mediana}</strong></li>
+      <li>Moda: <strong>${e3.moda}</strong></li>
+      <li>Rango: ${e3.min} - ${e3.max} (amplitud: ${e3.rango})</li>
+    </ul>
+    <hr style="margin: 10px 0; border: none; border-top: 1px dashed var(--border);">
+    <p><strong>Pregunta 8 — Afectación de dispositivos (escala 1-5):</strong></p>
+    <ul style="margin-left: 20px;">
+      <li>Media (promedio): <strong>${e8.media}</strong></li>
+      <li>Mediana: <strong>${e8.mediana}</strong></li>
+      <li>Moda: <strong>${e8.moda}</strong></li>
+      <li>Rango: ${e8.min} - ${e8.max} (amplitud: ${e8.rango})</li>
+    </ul>
+    <hr style="margin: 10px 0; border: none; border-top: 1px dashed var(--border);">
+    <p><strong>Pregunta 10 — Influencia familiar (escala 1-5):</strong></p>
+    <ul style="margin-left: 20px;">
+      <li>Media (promedio): <strong>${e10.media}</strong></li>
+      <li>Mediana: <strong>${e10.mediana}</strong></li>
+      <li>Moda: <strong>${e10.moda}</strong></li>
+      <li>Rango: ${e10.min} - ${e10.max} (amplitud: ${e10.rango})</li>
+    </ul>
+  `;
+}
+</script>
+</body>
+</html>
